@@ -1,0 +1,101 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - modules/**
+      - .azuredevops/**
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Validate
+    displayName: Validate Modules
+    jobs:
+      - job: CheckPRTitle
+        displayName: Check PR Title Format
+        steps:
+          - script: |
+              PR_TITLE="$(System.PullRequest.Title)"
+              echo "PR Title: $PR_TITLE"
+              if ! echo "$PR_TITLE" | grep -qE "^(feat|fix|chore|docs)(\(.+\))?(!)?: .+"; then
+                echo "ERROR: PR title must follow conventional commits format."
+                echo ""
+                echo "Examples:"
+                echo "  feat(vnet): add custom DNS servers variable"
+                echo "  fix(aks): correct node pool scaling flag"
+                echo "  feat(redis)!: rename capacity variable"
+                echo "  chore: update README formatting"
+                exit 1
+              fi
+              echo "PR title format is valid."
+            displayName: Validate conventional commit format
+
+      - job: Format
+        displayName: Terraform Format Check
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: "1.14.0"
+
+          - script: terraform fmt -check -recursive
+            displayName: Check terraform formatting
+
+      - job: Validate
+        displayName: Terraform Validate
+        steps:
+          - task: TerraformInstaller@1
+            displayName: Install Terraform
+            inputs:
+              terraformVersion: "1.14.0"
+
+          - script: |
+              for dir in $(find modules -name "*.tf" ! -path "*/.*" -exec dirname {} \; | sort -u); do
+                echo "Validating $dir"
+                terraform -chdir="$dir" init -backend=false -input=false 1>/dev/null
+                terraform -chdir="$dir" validate
+              done
+            displayName: Validate all modules
+
+      - job: Lint
+        displayName: TFLint
+        steps:
+          - script: |
+              curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+            displayName: Install tflint
+
+          - script: |
+              cat > .tflint.hcl <<EOF
+              plugin "azurerm" {
+                enabled = true
+                version = "0.27.0"
+                source  = "github.com/terraform-linters/tflint-ruleset-azurerm"
+              }
+              EOF
+              tflint --init
+            displayName: Init tflint with azurerm plugin
+
+          - script: |
+              for dir in $(find modules -name "*.tf" ! -path "*/.*" -exec dirname {} \; | sort -u); do
+                echo "Linting $dir"
+                tflint --chdir="$dir"
+              done
+            displayName: Lint all modules
+
+      - job: Security
+        displayName: Checkov Security Scan
+        steps:
+          - script: pip install checkov
+            displayName: Install checkov
+
+          - script: |
+              checkov -d modules \
+                --framework terraform \
+                --soft-fail false \
+                --skip-check CKV_AZURE_131,CKV2_AZURE_31
+            displayName: Run checkov security scan

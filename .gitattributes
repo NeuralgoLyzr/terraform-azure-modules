@@ -1,0 +1,9 @@
+# Always use LF line endings for these file types
+*.tf        text eol=lf
+*.tfvars    text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.json      text eol=lf
+*.md        text eol=lf
+*.sh        text eol=lf
+.gitignore  text eol=lf

@@ -1,0 +1,44 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+  - stage: Release
+    displayName: Release Please
+    jobs:
+      - job: ReleasePlease
+        displayName: Run release-please
+        steps:
+          - checkout: self
+            persistCredentials: true
+            fetchDepth: 0
+
+          - script: |
+              npm install -g release-please
+            displayName: Install release-please
+
+          - script: |
+              release-please release-pr \
+                --token=$(GITHUB_TOKEN) \
+                --repo-url=NeuralgoLyzr/terraform-azure-modules \
+                --config-file=release-please-config.json \
+                --manifest-file=.release-please-manifest.json
+            displayName: Create or update Release PR
+            env:
+              GITHUB_TOKEN: $(GITHUB_TOKEN)
+
+          - script: |
+              release-please github-release \
+                --token=$(GITHUB_TOKEN) \
+                --repo-url=NeuralgoLyzr/terraform-azure-modules \
+                --config-file=release-please-config.json \
+                --manifest-file=.release-please-manifest.json
+            displayName: Create GitHub release and tag
+            env:
+              GITHUB_TOKEN: $(GITHUB_TOKEN)
