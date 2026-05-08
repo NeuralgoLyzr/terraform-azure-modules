@@ -67,27 +67,27 @@ variable "subnets" {
   description = "Map of subnet name to configuration"
   default = {
     appGatewaySubnet = {
-      address_prefix    = "10.200.1.0/24"
+      address_prefix    = "10.200.0.0/24"
       service_endpoints = []
     }
     gatewaySubnet = {
-      address_prefix    = "10.200.2.0/27"
+      address_prefix    = "10.200.1.0/27"
       service_endpoints = []
     }
     aksSubnet = {
-      address_prefix    = "10.200.3.0/23"
+      address_prefix    = "10.200.2.0/23"
       service_endpoints = ["Microsoft.ContainerRegistry", "Microsoft.KeyVault", "Microsoft.Storage"]
     }
     dataSubnet = {
-      address_prefix    = "10.200.5.0/24"
+      address_prefix    = "10.200.4.0/24"
       service_endpoints = ["Microsoft.AzureCosmosDB", "Microsoft.Sql", "Microsoft.Storage"]
     }
     vmSubnet = {
-      address_prefix    = "10.200.6.0/24"
+      address_prefix    = "10.200.5.0/24"
       service_endpoints = ["Microsoft.KeyVault", "Microsoft.Storage"]
     }
     functionAppSubnet = {
-      address_prefix    = "10.200.7.0/24"
+      address_prefix    = "10.200.6.0/24"
       service_endpoints = ["Microsoft.Storage", "Microsoft.KeyVault"]
       delegation = {
         name         = "functionapp-delegation"
@@ -96,7 +96,7 @@ variable "subnets" {
       }
     }
     privateEndpointSubnet = {
-      address_prefix    = "10.200.8.0/24"
+      address_prefix    = "10.200.7.0/24"
       service_endpoints = []
     }
   }
@@ -160,7 +160,7 @@ variable "nsg_rules" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "80"
-        source_address_prefix      = "10.200.1.0/24"
+        source_address_prefix      = "10.200.0.0/24"
         destination_address_prefix = "*"
       },
       {
@@ -171,8 +171,8 @@ variable "nsg_rules" {
         protocol                   = "*"
         source_port_range          = "*"
         destination_port_range     = "*"
-        source_address_prefix      = "10.200.3.0/23"
-        destination_address_prefix = "10.200.3.0/23"
+        source_address_prefix      = "10.200.2.0/23"
+        destination_address_prefix = "10.200.2.0/23"
       }
     ]
     dataSubnet = [
@@ -184,7 +184,7 @@ variable "nsg_rules" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "*"
-        source_address_prefix      = "10.200.3.0/23"
+        source_address_prefix      = "10.200.2.0/23"
         destination_address_prefix = "*"
       },
       {
@@ -195,7 +195,7 @@ variable "nsg_rules" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "*"
-        source_address_prefix      = "10.200.6.0/24"
+        source_address_prefix      = "10.200.5.0/24"
         destination_address_prefix = "*"
       },
       {
@@ -206,7 +206,7 @@ variable "nsg_rules" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "*"
-        source_address_prefix      = "10.200.7.0/24"
+        source_address_prefix      = "10.200.6.0/24"
         destination_address_prefix = "*"
       }
     ]
@@ -230,7 +230,7 @@ variable "nsg_rules" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "8123"
-        source_address_prefix      = "10.200.3.0/23"
+        source_address_prefix      = "10.200.2.0/23"
         destination_address_prefix = "*"
       },
       {
@@ -241,7 +241,7 @@ variable "nsg_rules" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "6333"
-        source_address_prefix      = "10.200.3.0/23"
+        source_address_prefix      = "10.200.2.0/23"
         destination_address_prefix = "*"
       },
       {
@@ -252,7 +252,7 @@ variable "nsg_rules" {
         protocol                   = "Tcp"
         source_port_range          = "*"
         destination_port_range     = "8080"
-        source_address_prefix      = "10.200.3.0/23"
+        source_address_prefix      = "10.200.2.0/23"
         destination_address_prefix = "*"
       }
     ]
