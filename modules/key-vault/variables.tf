@@ -106,9 +106,9 @@ variable "network_acls_default_action" {
 }
 
 variable "network_acls_bypass" {
-  type        = list(string)
-  description = "Services allowed to bypass network ACLs (AzureServices, None)"
-  default     = ["AzureServices"]
+  type        = string
+  description = "Services allowed to bypass network ACLs (AzureServices or None)"
+  default     = "AzureServices"
 }
 
 variable "network_acls_ip_rules" {
