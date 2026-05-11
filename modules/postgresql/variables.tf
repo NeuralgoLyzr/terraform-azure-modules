@@ -41,8 +41,8 @@ variable "postgres_version" {
 
 variable "sku_name" {
   type        = string
-  description = "SKU for the flexible server (e.g. Standard_B1ms, Standard_D2s_v3)"
-  default     = "Standard_B1ms"
+  description = "SKU for the flexible server (e.g. B_Standard_B1ms, GP_Standard_D2s_v3)"
+  default     = "B_Standard_B1ms"
 }
 
 variable "storage_mb" {
