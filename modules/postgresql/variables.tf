@@ -69,8 +69,8 @@ variable "geo_redundant_backup" {
 
 variable "availability_zone" {
   type        = string
-  description = "Availability zone for the primary server (1, 2, or 3)"
-  default     = "1"
+  description = "Availability zone for the primary server (1, 2, or 3). Leave empty to let Azure choose."
+  default     = ""
 }
 
 variable "enable_high_availability" {
