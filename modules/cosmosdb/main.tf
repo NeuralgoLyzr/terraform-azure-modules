@@ -83,7 +83,7 @@ module "private_endpoint" {
 resource "azurerm_key_vault_secret" "connection_string" {
   count        = var.key_vault_id != "" ? 1 : 0
   name         = "COSMOS-CONNECTION-STRING"
-  value        = azurerm_cosmosdb_account.this.connection_strings[0]
+  value        = "mongodb://${azurerm_cosmosdb_account.this.name}:${urlencode(azurerm_cosmosdb_account.this.primary_key)}@${azurerm_cosmosdb_account.this.name}.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@${azurerm_cosmosdb_account.this.name}@"
   key_vault_id = var.key_vault_id
 
   tags = local.all_tags
