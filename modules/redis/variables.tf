@@ -80,12 +80,24 @@ variable "client_protocol" {
 
 variable "clustering_policy" {
   type        = string
-  description = "Clustering policy: EnterpriseCluster or OSSCluster"
-  default     = "EnterpriseCluster"
+  description = "Clustering policy: EnterpriseCluster, OSSCluster, or NoCluster"
+  default     = "NoCluster"
   validation {
-    condition     = contains(["EnterpriseCluster", "OSSCluster"], var.clustering_policy)
-    error_message = "clustering_policy must be EnterpriseCluster or OSSCluster."
+    condition     = contains(["EnterpriseCluster", "OSSCluster", "NoCluster"], var.clustering_policy)
+    error_message = "clustering_policy must be EnterpriseCluster, OSSCluster, or NoCluster."
   }
+}
+
+variable "aof_enabled" {
+  type        = bool
+  description = "Enable AOF (append-only file) persistence"
+  default     = false
+}
+
+variable "rdb_enabled" {
+  type        = bool
+  description = "Enable RDB (snapshot) persistence"
+  default     = false
 }
 
 # ---------------------------------------------------------------------------

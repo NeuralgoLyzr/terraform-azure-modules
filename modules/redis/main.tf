@@ -15,12 +15,18 @@ resource "azurerm_redis_enterprise_cluster" "this" {
 # Redis Enterprise Database
 # ---------------------------------------------------------------------------
 resource "azurerm_redis_enterprise_database" "this" {
-  name              = "default"
-  cluster_id        = azurerm_redis_enterprise_cluster.this.id
-  client_protocol   = var.client_protocol
-  clustering_policy = var.clustering_policy
-  eviction_policy   = var.eviction_policy
-  port              = var.db_port
+  name                           = "default"
+  cluster_id                     = azurerm_redis_enterprise_cluster.this.id
+  client_protocol                = var.client_protocol
+  clustering_policy              = var.clustering_policy
+  eviction_policy                = var.eviction_policy
+  port                           = var.db_port
+  access_keys_authentication_enabled = true
+
+  persistence {
+    aof_enabled = var.aof_enabled
+    rdb_enabled = var.rdb_enabled
+  }
 }
 
 # ---------------------------------------------------------------------------
@@ -56,7 +62,7 @@ module "private_endpoint" {
 # ---------------------------------------------------------------------------
 resource "azurerm_key_vault_secret" "access_key" {
   count        = var.key_vault_id != "" ? 1 : 0
-  name         = "REDIS-PRIMARY-ACCESS-KEY"
+  name         = "REDIS-PASSWORD"
   value        = azurerm_redis_enterprise_database.this.primary_access_key
   key_vault_id = var.key_vault_id
 
