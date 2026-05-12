@@ -63,14 +63,19 @@ resource "azurerm_mysql_flexible_server_active_directory_administrator" "this" {
 }
 
 # ---------------------------------------------------------------------------
-# Database
+# Database (azapi — azurerm_mysql_flexible_server_database removed in v4)
 # ---------------------------------------------------------------------------
-resource "azurerm_mysql_flexible_server_database" "this" {
-  name                = var.database_name
-  resource_group_name = var.resource_group_name
-  server_name         = azurerm_mysql_flexible_server.this.name
-  charset             = "utf8mb4"
-  collation           = "utf8mb4_unicode_ci"
+resource "azapi_resource" "database" {
+  type      = "Microsoft.DBforMySQL/flexibleServers/databases@2023-12-30"
+  name      = var.database_name
+  parent_id = azurerm_mysql_flexible_server.this.id
+
+  body = {
+    properties = {
+      charset   = "utf8mb4"
+      collation = "utf8mb4_unicode_ci"
+    }
+  }
 
   depends_on = [azurerm_mysql_flexible_server_active_directory_administrator.this]
 }

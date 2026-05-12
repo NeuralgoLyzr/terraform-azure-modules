@@ -14,7 +14,7 @@ output "fqdn" {
 }
 
 output "database_name" {
-  value       = azurerm_mysql_flexible_server_database.this.name
+  value       = azapi_resource.database.name
   description = "Database name"
 }
 
