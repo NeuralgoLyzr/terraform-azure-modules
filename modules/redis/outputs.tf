@@ -1,26 +1,26 @@
 output "cluster_id" {
-  value       = azurerm_managed_redis_cluster.this.id
-  description = "Azure Managed Redis cluster resource ID"
+  value       = azurerm_redis_enterprise_cluster.this.id
+  description = "Redis Enterprise cluster resource ID"
 }
 
 output "cluster_name" {
-  value       = azurerm_managed_redis_cluster.this.name
-  description = "Azure Managed Redis cluster name"
+  value       = azurerm_redis_enterprise_cluster.this.name
+  description = "Redis Enterprise cluster name"
 }
 
 output "hostname" {
-  value       = azurerm_managed_redis_cluster.this.hostname
-  description = "Azure Managed Redis cluster hostname"
+  value       = azurerm_redis_enterprise_cluster.this.hostname
+  description = "Redis Enterprise cluster hostname"
 }
 
 output "database_id" {
-  value       = azurerm_managed_redis_database.this.id
-  description = "Azure Managed Redis database resource ID"
+  value       = azurerm_redis_enterprise_database.this.id
+  description = "Redis Enterprise database resource ID"
 }
 
 output "primary_access_key" {
-  value       = azurerm_managed_redis_database.this.primary_access_key
-  description = "Azure Managed Redis database primary access key"
+  value       = azurerm_redis_enterprise_database.this.primary_access_key
+  description = "Redis Enterprise database primary access key"
   sensitive   = true
 }
 
