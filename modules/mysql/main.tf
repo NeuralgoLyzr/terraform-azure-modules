@@ -32,8 +32,6 @@ resource "azurerm_mysql_flexible_server" "this" {
   backup_retention_days        = var.backup_retention_days
   geo_redundant_backup_enabled = var.geo_redundant_backup_enabled
 
-  public_network_access_enabled = false
-
   identity {
     type         = "UserAssigned"
     identity_ids = [var.managed_identity_id]
