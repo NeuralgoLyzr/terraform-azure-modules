@@ -1,26 +1,26 @@
 output "cluster_id" {
-  value       = azurerm_redis_enterprise_cluster.this.id
-  description = "Redis Enterprise cluster resource ID"
+  value       = azapi_resource.redis_cluster.id
+  description = "Redis cluster resource ID"
 }
 
 output "cluster_name" {
-  value       = azurerm_redis_enterprise_cluster.this.name
-  description = "Redis Enterprise cluster name"
+  value       = azapi_resource.redis_cluster.name
+  description = "Redis cluster name"
 }
 
 output "hostname" {
-  value       = azurerm_redis_enterprise_cluster.this.hostname
-  description = "Redis Enterprise cluster hostname"
+  value       = azapi_resource.redis_cluster.output.properties.hostName
+  description = "Redis cluster hostname"
 }
 
 output "database_id" {
-  value       = azurerm_redis_enterprise_database.this.id
-  description = "Redis Enterprise database resource ID"
+  value       = azapi_resource.redis_database.id
+  description = "Redis database resource ID"
 }
 
 output "primary_access_key" {
-  value       = azurerm_redis_enterprise_database.this.primary_access_key
-  description = "Redis Enterprise database primary access key"
+  value       = data.azapi_resource_action.redis_keys.output.primaryKey
+  description = "Redis database primary access key"
   sensitive   = true
 }
 

@@ -1,26 +1,70 @@
 # ---------------------------------------------------------------------------
-# Redis Enterprise Cluster
+# Resource group data source (needed for parent_id)
 # ---------------------------------------------------------------------------
-resource "azurerm_redis_enterprise_cluster" "this" {
-  name                = local.cluster_name
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  sku_name            = var.sku_name
-  minimum_tls_version = var.minimum_tls_version
+data "azurerm_resource_group" "this" {
+  name = var.resource_group_name
+}
+
+# ---------------------------------------------------------------------------
+# Azure Managed Redis Cluster (via AzAPI — supports Balanced_B* SKUs)
+# ---------------------------------------------------------------------------
+resource "azapi_resource" "redis_cluster" {
+  type      = "Microsoft.Cache/redisEnterprise@2025-07-01"
+  name      = local.cluster_name
+  location  = var.location
+  parent_id = data.azurerm_resource_group.this.id
+
+  body = {
+    sku = {
+      name = var.sku_name
+    }
+    properties = {
+      minimumTlsVersion   = var.minimum_tls_version
+      publicNetworkAccess = "Disabled"
+    }
+  }
 
   tags = local.all_tags
+
+  schema_validation_enabled = false
+  response_export_values    = ["properties.hostName"]
 }
 
 # ---------------------------------------------------------------------------
 # Redis Enterprise Database
 # ---------------------------------------------------------------------------
-resource "azurerm_redis_enterprise_database" "this" {
-  name              = "default"
-  cluster_id        = azurerm_redis_enterprise_cluster.this.id
-  client_protocol   = var.client_protocol
-  clustering_policy = var.clustering_policy
-  eviction_policy   = var.eviction_policy
-  port              = var.db_port
+resource "azapi_resource" "redis_database" {
+  type      = "Microsoft.Cache/redisEnterprise/databases@2025-07-01"
+  name      = "default"
+  parent_id = azapi_resource.redis_cluster.id
+
+  body = {
+    properties = {
+      clientProtocol           = var.client_protocol
+      clusteringPolicy         = var.clustering_policy
+      evictionPolicy           = var.eviction_policy
+      port                     = var.db_port
+      accessKeysAuthentication = "Enabled"
+      persistence = {
+        aofEnabled = var.aof_enabled
+        rdbEnabled = var.rdb_enabled
+      }
+    }
+  }
+
+  schema_validation_enabled = false
+}
+
+# ---------------------------------------------------------------------------
+# Retrieve access keys
+# ---------------------------------------------------------------------------
+data "azapi_resource_action" "redis_keys" {
+  type        = "Microsoft.Cache/redisEnterprise/databases@2025-07-01"
+  resource_id = azapi_resource.redis_database.id
+  action      = "listKeys"
+  method      = "POST"
+
+  response_export_values = ["*"]
 }
 
 # ---------------------------------------------------------------------------
@@ -40,7 +84,7 @@ module "private_endpoint" {
 
   name              = "redis"
   subnet_id         = var.subnet_id
-  resource_id       = azurerm_redis_enterprise_cluster.this.id
+  resource_id       = azapi_resource.redis_cluster.id
   subresource_names = ["redisEnterprise"]
 
   create_dns_zone       = var.create_private_dns_zone
@@ -52,12 +96,12 @@ module "private_endpoint" {
 }
 
 # ---------------------------------------------------------------------------
-# Store access key in Key Vault (optional)
+# Store secrets in Key Vault (optional)
 # ---------------------------------------------------------------------------
 resource "azurerm_key_vault_secret" "access_key" {
   count        = var.key_vault_id != "" ? 1 : 0
   name         = "REDIS-PASSWORD"
-  value        = azurerm_redis_enterprise_database.this.primary_access_key
+  value        = data.azapi_resource_action.redis_keys.output.primaryKey
   key_vault_id = var.key_vault_id
 
   tags = local.all_tags
@@ -66,7 +110,7 @@ resource "azurerm_key_vault_secret" "access_key" {
 resource "azurerm_key_vault_secret" "connection_string" {
   count        = var.key_vault_id != "" ? 1 : 0
   name         = "REDIS-CONNECTION-STRING"
-  value        = "rediss://:${azurerm_redis_enterprise_database.this.primary_access_key}@${azurerm_redis_enterprise_cluster.this.hostname}:${var.db_port}"
+  value        = "rediss://:${data.azapi_resource_action.redis_keys.output.primaryKey}@${azapi_resource.redis_cluster.output.properties.hostName}:${var.db_port}"
   key_vault_id = var.key_vault_id
 
   tags = local.all_tags

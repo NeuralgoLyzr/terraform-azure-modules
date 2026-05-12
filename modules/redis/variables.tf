@@ -88,6 +88,17 @@ variable "clustering_policy" {
   }
 }
 
+variable "aof_enabled" {
+  type        = bool
+  description = "Enable AOF (append-only file) persistence"
+  default     = false
+}
+
+variable "rdb_enabled" {
+  type        = bool
+  description = "Enable RDB (snapshot) persistence"
+  default     = false
+}
 
 # ---------------------------------------------------------------------------
 # Networking (private endpoint)
