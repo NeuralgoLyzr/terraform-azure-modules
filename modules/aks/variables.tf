@@ -39,10 +39,20 @@ variable "kubernetes_version" {
   default     = null
 }
 
+variable "sku_tier" {
+  type        = string
+  description = "AKS cluster SKU tier — Free (no SLA, dev/test), Standard (99.9% SLA), Premium (99.95% SLA)"
+  default     = "Standard"
+  validation {
+    condition     = contains(["Free", "Standard", "Premium"], var.sku_tier)
+    error_message = "sku_tier must be Free, Standard, or Premium."
+  }
+}
+
 variable "node_vm_size" {
   type        = string
   description = "VM size for the system node pool"
-  default     = "Standard_D2s_v3"
+  default     = "Standard_D8s_v3"
 }
 
 variable "node_count" {

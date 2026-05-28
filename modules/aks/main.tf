@@ -7,6 +7,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   resource_group_name = var.resource_group_name
   dns_prefix          = local.dns_prefix
   kubernetes_version  = var.kubernetes_version
+  sku_tier            = var.sku_tier
 
   # System-assigned identity — AGIC and kubelet use their own identities
   identity {
