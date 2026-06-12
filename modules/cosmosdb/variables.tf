@@ -31,50 +31,45 @@ variable "resource_group_name" {
 }
 
 # ---------------------------------------------------------------------------
-# CosmosDB account configuration
+# DocumentDB cluster configuration
 # ---------------------------------------------------------------------------
-variable "mongo_server_version" {
+variable "administrator_username" {
   type        = string
-  description = "MongoDB server version"
-  default     = "4.2"
+  description = "Admin username for the DocumentDB cluster"
 }
 
-variable "consistency_level" {
+variable "administrator_password" {
   type        = string
-  description = "Default consistency level (Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix)"
-  default     = "Strong"
+  sensitive   = true
+  description = "Admin password for the DocumentDB cluster"
+}
+
+variable "compute_tier" {
+  type        = string
+  description = "vCore compute tier — M10 (2 vCores), M20 (4), M30 (8), M40 (16), etc."
+  default     = "M10"
+}
+
+variable "high_availability_mode" {
+  type        = string
+  description = "High availability mode — Disabled or ZoneRedundantPreferred"
+  default     = "Disabled"
   validation {
-    condition     = contains(["Eventual", "Session", "BoundedStaleness", "Strong", "ConsistentPrefix"], var.consistency_level)
-    error_message = "consistency_level must be one of: Eventual, Session, BoundedStaleness, Strong, ConsistentPrefix."
+    condition     = contains(["Disabled", "ZoneRedundantPreferred"], var.high_availability_mode)
+    error_message = "high_availability_mode must be Disabled or ZoneRedundantPreferred."
   }
 }
 
-variable "secondary_location" {
-  type        = string
-  description = "Secondary Azure region for read replica. Leave empty to disable geo-redundancy."
-  default     = "northeurope"
+variable "storage_size_in_gb" {
+  type        = number
+  description = "Storage size in GB per shard"
+  default     = 32
 }
 
-variable "backup_tier" {
+variable "mongo_version" {
   type        = string
-  description = "Continuous backup tier (Continuous7Days or Continuous30Days)"
-  default     = "Continuous7Days"
-  validation {
-    condition     = contains(["Continuous7Days", "Continuous30Days"], var.backup_tier)
-    error_message = "backup_tier must be Continuous7Days or Continuous30Days."
-  }
-}
-
-# ---------------------------------------------------------------------------
-# Databases
-# ---------------------------------------------------------------------------
-variable "databases" {
-  type = list(object({
-    name       = string
-    throughput = optional(number, 400)
-  }))
-  description = "List of MongoDB databases to create. throughput defaults to 400 RU/s."
-  default     = []
+  description = "MongoDB compatibility version (5.0, 6.0, 7.0, 8.0)"
+  default     = "7.0"
 }
 
 # ---------------------------------------------------------------------------
@@ -82,7 +77,7 @@ variable "databases" {
 # ---------------------------------------------------------------------------
 variable "subnet_id" {
   type        = string
-  description = "Subnet ID for the private endpoint NIC (privateEndpointSubnet)"
+  description = "Subnet ID for the private endpoint NIC"
 }
 
 variable "vnet_id" {
@@ -92,7 +87,7 @@ variable "vnet_id" {
 
 variable "create_private_dns_zone" {
   type        = bool
-  description = "Set to false if privatelink.mongo.cosmos.azure.com DNS zone already exists"
+  description = "Set to false if privatelink.mongocluster.cosmos.azure.com DNS zone already exists"
   default     = true
 }
 

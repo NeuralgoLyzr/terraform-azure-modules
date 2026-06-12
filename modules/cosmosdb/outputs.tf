@@ -1,27 +1,17 @@
-output "account_id" {
-  value       = azurerm_cosmosdb_account.this.id
-  description = "CosmosDB account resource ID"
+output "cluster_id" {
+  value       = azurerm_mongo_cluster.this.id
+  description = "DocumentDB cluster resource ID"
 }
 
-output "account_name" {
-  value       = azurerm_cosmosdb_account.this.name
-  description = "CosmosDB account name"
+output "cluster_name" {
+  value       = azurerm_mongo_cluster.this.name
+  description = "DocumentDB cluster name"
 }
 
-output "endpoint" {
-  value       = azurerm_cosmosdb_account.this.endpoint
-  description = "CosmosDB account endpoint"
-}
-
-output "primary_key" {
-  value       = azurerm_cosmosdb_account.this.primary_key
-  description = "CosmosDB primary master key"
+output "connection_string" {
+  value       = azurerm_mongo_cluster.this.connection_strings[0].value
+  description = "Primary MongoDB connection string"
   sensitive   = true
-}
-
-output "database_names" {
-  value       = keys(azurerm_cosmosdb_mongo_database.this)
-  description = "List of created MongoDB database names"
 }
 
 output "private_dns_zone_id" {

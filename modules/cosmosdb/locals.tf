@@ -14,7 +14,7 @@ locals {
 
   region_code  = local.region_short[var.location]
   name_prefix  = "${var.company}-${var.product}-${var.environment}-${local.region_code}"
-  account_name = "${local.name_prefix}-cosmos"
+  cluster_name = "${local.name_prefix}-docdb"
 
   mandatory_tags = {
     Environment   = var.environment

@@ -1,52 +1,23 @@
 # ---------------------------------------------------------------------------
-# CosmosDB Account (MongoDB API)
+# Azure DocumentDB (MongoDB-compatible vCore cluster)
 # ---------------------------------------------------------------------------
-resource "azurerm_cosmosdb_account" "this" {
-  name                = local.account_name
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  offer_type          = "Standard"
-  kind                = "MongoDB"
-  mongo_server_version = var.mongo_server_version
+resource "azurerm_mongo_cluster" "this" {
+  name                   = local.cluster_name
+  resource_group_name    = var.resource_group_name
+  location               = var.location
 
-  public_network_access_enabled = false
+  administrator_username = var.administrator_username
+  administrator_password = var.administrator_password
 
-  consistency_policy {
-    consistency_level = var.consistency_level
-  }
+  shard_count            = 1
+  compute_tier           = var.compute_tier
+  high_availability_mode = var.high_availability_mode
+  storage_size_in_gb     = var.storage_size_in_gb
+  version                = var.mongo_version
 
-  # Primary write region
-  geo_location {
-    location          = var.location
-    failover_priority = 0
-  }
-
-  # Optional read replica
-  dynamic "geo_location" {
-    for_each = var.secondary_location != "" ? [1] : []
-    content {
-      location          = var.secondary_location
-      failover_priority = 1
-    }
-  }
-
-  backup {
-    type = "Continuous"
-    tier = var.backup_tier
-  }
+  public_network_access  = "Disabled"
 
   tags = local.all_tags
-}
-
-# ---------------------------------------------------------------------------
-# MongoDB Databases
-# ---------------------------------------------------------------------------
-resource "azurerm_cosmosdb_mongo_database" "this" {
-  for_each            = { for db in var.databases : db.name => db }
-  name                = each.key
-  resource_group_name = var.resource_group_name
-  account_name        = azurerm_cosmosdb_account.this.name
-  throughput          = each.value.throughput
 }
 
 # ---------------------------------------------------------------------------
@@ -64,26 +35,26 @@ module "private_endpoint" {
   cost_center         = var.cost_center
   terraform_repo      = var.terraform_repo
 
-  name              = "cosmos"
+  name              = "docdb"
   subnet_id         = var.subnet_id
-  resource_id       = azurerm_cosmosdb_account.this.id
-  subresource_names = ["MongoDB"]
+  resource_id       = azurerm_mongo_cluster.this.id
+  subresource_names = ["mongocluster"]
 
   create_dns_zone       = var.create_private_dns_zone
   existing_dns_zone_id  = var.existing_private_dns_zone_id
-  private_dns_zone_name = "privatelink.mongo.cosmos.azure.com"
+  private_dns_zone_name = "privatelink.mongocluster.cosmos.azure.com"
   vnet_id               = var.vnet_id
 
   tags = var.tags
 }
 
 # ---------------------------------------------------------------------------
-# Store connection string in Key Vault (optional)
+# Store connection string in Key Vault
 # ---------------------------------------------------------------------------
 resource "azurerm_key_vault_secret" "connection_string" {
   count        = var.key_vault_id != "" ? 1 : 0
   name         = "COSMOS-CONNECTION-STRING"
-  value        = "mongodb://${azurerm_cosmosdb_account.this.name}:${urlencode(azurerm_cosmosdb_account.this.primary_key)}@${azurerm_cosmosdb_account.this.name}.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@${azurerm_cosmosdb_account.this.name}@"
+  value        = azurerm_mongo_cluster.this.connection_strings[0].value
   key_vault_id = var.key_vault_id
 
   tags = local.all_tags
