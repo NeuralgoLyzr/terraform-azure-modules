@@ -40,6 +40,15 @@ resource "azurerm_postgresql_flexible_server" "this" {
   administrator_login    = var.admin_username
   administrator_password = random_password.admin.result
 
+  dynamic "authentication" {
+    for_each = var.enable_aad_auth ? [1] : []
+    content {
+      active_directory_auth_enabled = true
+      password_auth_enabled         = true
+      tenant_id                     = var.tenant_id
+    }
+  }
+
   sku_name               = var.sku_name
   storage_mb             = var.storage_mb
   zone                   = var.availability_zone != "" ? var.availability_zone : null

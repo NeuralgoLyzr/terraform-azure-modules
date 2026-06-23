@@ -138,6 +138,21 @@ variable "key_vault_id" {
 }
 
 # ---------------------------------------------------------------------------
+# Microsoft Entra ID authentication (optional — required for Managed Identity access)
+# ---------------------------------------------------------------------------
+variable "enable_aad_auth" {
+  type        = bool
+  description = "Enable Microsoft Entra ID (AAD) authentication on the PostgreSQL server"
+  default     = false
+}
+
+variable "tenant_id" {
+  type        = string
+  description = "Azure AD tenant ID — required when enable_aad_auth = true"
+  default     = ""
+}
+
+# ---------------------------------------------------------------------------
 # Tagging
 # ---------------------------------------------------------------------------
 variable "owner" {
