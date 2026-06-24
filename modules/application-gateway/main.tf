@@ -109,7 +109,9 @@ resource "azurerm_application_gateway" "this" {
     for_each = var.ssl_certificate != null ? [var.ssl_certificate] : []
     content {
       name                = ssl_certificate.value.name
-      key_vault_secret_id = ssl_certificate.value.key_vault_secret_id
+      key_vault_secret_id = ssl_certificate.value.key_vault_secret_id != "" ? ssl_certificate.value.key_vault_secret_id : null
+      data                = ssl_certificate.value.data != "" ? ssl_certificate.value.data : null
+      password            = ssl_certificate.value.data != "" ? ssl_certificate.value.password : null
     }
   }
 
@@ -161,14 +163,18 @@ resource "azurerm_application_gateway" "this" {
   tags = local.all_tags
 
   lifecycle {
-    # AGIC manages backend pool membership — ignore drift from AKS
+    # AGIC manages these fields — ignore drift so terraform apply never undoes AGIC config
     ignore_changes = [
       backend_address_pool,
       backend_http_settings,
       http_listener,
       request_routing_rule,
       probe,
-      tags["modified-by-agic"]
+      redirect_configuration,
+      frontend_port,
+      tags["modified-by-agic"],
+      tags["ingress-for-aks-cluster-id"],
+      tags["managed-by-k8s-ingress"],
     ]
   }
 }

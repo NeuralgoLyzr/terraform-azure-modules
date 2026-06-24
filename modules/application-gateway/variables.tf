@@ -112,9 +112,11 @@ variable "managed_identity_id" {
 variable "ssl_certificate" {
   type = object({
     name                = string
-    key_vault_secret_id = string
+    key_vault_secret_id = optional(string, "")
+    data                = optional(string, "")
+    password            = optional(string, "")
   })
-  description = "SSL certificate config referencing a Key Vault secret"
+  description = "SSL certificate — set key_vault_secret_id for KV-linked, or data (base64 PFX) + password for direct upload. Only one of key_vault_secret_id or data must be set."
   default     = null
 }
 
