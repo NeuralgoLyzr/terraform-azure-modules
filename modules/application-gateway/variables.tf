@@ -85,6 +85,24 @@ variable "waf_mode" {
   }
 }
 
+variable "waf_custom_rules" {
+  type = list(object({
+    name      = string
+    priority  = number
+    rule_type = string
+    action    = string
+    match_conditions = list(object({
+      match_variable     = string
+      operator           = string
+      match_values       = list(string)
+      negation_condition = optional(bool, false)
+      transforms         = optional(list(string), [])
+    }))
+  }))
+  description = "List of WAF custom rules evaluated before managed rules. Default is empty (no custom rules)."
+  default     = []
+}
+
 variable "managed_identity_id" {
   type        = string
   description = "User-assigned managed identity ID for Key Vault SSL cert access"
