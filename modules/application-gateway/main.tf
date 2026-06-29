@@ -41,6 +41,7 @@ resource "azurerm_web_application_firewall_policy" "this" {
         content {
           match_variables {
             variable_name = match_conditions.value.match_variable
+            selector      = match_conditions.value.selector
           }
           operator           = match_conditions.value.operator
           negation_condition = match_conditions.value.negation_condition

@@ -97,6 +97,7 @@ variable "waf_custom_rules" {
       match_values       = list(string)
       negation_condition = optional(bool, false)
       transforms         = optional(list(string), [])
+      selector           = optional(string, null)
     }))
   }))
   description = "List of WAF custom rules evaluated before managed rules. Default is empty (no custom rules)."
