@@ -49,6 +49,16 @@ variable "minimum_tls_version" {
   }
 }
 
+variable "public_network_access" {
+  type        = string
+  description = "Enable public network access — Enabled or Disabled."
+  default     = "Disabled"
+  validation {
+    condition     = contains(["Enabled", "Disabled"], var.public_network_access)
+    error_message = "public_network_access must be Enabled or Disabled."
+  }
+}
+
 # ---------------------------------------------------------------------------
 # Redis Enterprise database configuration
 # ---------------------------------------------------------------------------

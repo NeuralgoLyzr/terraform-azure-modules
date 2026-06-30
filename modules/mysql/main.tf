@@ -54,6 +54,18 @@ resource "azurerm_mysql_flexible_server" "this" {
 # ---------------------------------------------------------------------------
 # Entra ID (AAD) administrator — managed identity
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Firewall rules (public access)
+# ---------------------------------------------------------------------------
+resource "azurerm_mysql_flexible_server_firewall_rule" "allow" {
+  for_each            = { for r in var.firewall_ip_rules : r.name => r }
+  resource_group_name = var.resource_group_name
+  server_name         = azurerm_mysql_flexible_server.this.name
+  name                = each.value.name
+  start_ip_address    = each.value.start_ip
+  end_ip_address      = each.value.end_ip
+}
+
 resource "azurerm_mysql_flexible_server_active_directory_administrator" "this" {
   server_id   = azurerm_mysql_flexible_server.this.id
   identity_id = var.managed_identity_id

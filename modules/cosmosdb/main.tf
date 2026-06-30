@@ -15,9 +15,17 @@ resource "azurerm_mongo_cluster" "this" {
   storage_size_in_gb     = var.storage_size_in_gb
   version                = var.mongo_version
 
-  public_network_access  = "Disabled"
+  public_network_access  = var.public_network_access
 
   tags = local.all_tags
+}
+
+resource "azurerm_mongo_cluster_firewall_rule" "allow" {
+  for_each           = toset(var.firewall_ip_rules)
+  mongo_cluster_id   = azurerm_mongo_cluster.this.id
+  name               = "rule-${replace(replace(each.value, "/", "-"), ".", "-")}"
+  start_ip_address   = split("/", each.value)[0] == "0.0.0.0" ? "0.0.0.0" : cidrhost(each.value, 0)
+  end_ip_address     = split("/", each.value)[0] == "0.0.0.0" ? "255.255.255.255" : cidrhost(each.value, -1)
 }
 
 # ---------------------------------------------------------------------------

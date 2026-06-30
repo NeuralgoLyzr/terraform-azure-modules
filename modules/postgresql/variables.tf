@@ -97,6 +97,22 @@ variable "admin_username" {
 # ---------------------------------------------------------------------------
 # Networking (VNet integration)
 # ---------------------------------------------------------------------------
+variable "public_network_access_enabled" {
+  type        = bool
+  description = "Enable public network access. When true, add firewall rules to restrict access."
+  default     = false
+}
+
+variable "firewall_ip_rules" {
+  type = list(object({
+    name     = string
+    start_ip = string
+    end_ip   = string
+  }))
+  description = "Firewall rules when public_network_access_enabled = true."
+  default     = []
+}
+
 variable "subnet_id" {
   type        = string
   description = "ID of the delegated subnet for PostgreSQL VNet integration (dataSubnet)"

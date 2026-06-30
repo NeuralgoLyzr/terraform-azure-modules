@@ -55,7 +55,7 @@ resource "azurerm_postgresql_flexible_server" "this" {
 
   backup_retention_days        = var.backup_retention_days
   geo_redundant_backup_enabled = var.geo_redundant_backup
-  public_network_access_enabled = false
+  public_network_access_enabled = var.public_network_access_enabled
 
   dynamic "high_availability" {
     for_each = var.enable_high_availability ? [1] : []
@@ -110,6 +110,17 @@ resource "azurerm_postgresql_flexible_server_database" "this" {
   server_id = azurerm_postgresql_flexible_server.this.id
   collation = "en_US.utf8"
   charset   = "utf8"
+}
+
+# ---------------------------------------------------------------------------
+# Firewall rules (public access)
+# ---------------------------------------------------------------------------
+resource "azurerm_postgresql_flexible_server_firewall_rule" "allow" {
+  for_each   = { for r in var.firewall_ip_rules : r.name => r }
+  server_id  = azurerm_postgresql_flexible_server.this.id
+  name       = each.value.name
+  start_ip_address = each.value.start_ip
+  end_ip_address   = each.value.end_ip
 }
 
 # ---------------------------------------------------------------------------

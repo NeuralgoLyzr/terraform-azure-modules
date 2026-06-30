@@ -128,6 +128,16 @@ variable "database_name" {
 # ---------------------------------------------------------------------------
 # Networking (private endpoint)
 # ---------------------------------------------------------------------------
+variable "firewall_ip_rules" {
+  type = list(object({
+    name     = string
+    start_ip = string
+    end_ip   = string
+  }))
+  description = "Firewall rules to allow public access to MySQL. Empty list = no public access."
+  default     = []
+}
+
 variable "subnet_id" {
   type        = string
   description = "Subnet ID for the private endpoint NIC (privateEndpointSubnet)"

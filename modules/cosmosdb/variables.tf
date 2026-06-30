@@ -73,6 +73,25 @@ variable "mongo_version" {
 }
 
 # ---------------------------------------------------------------------------
+# Public network access
+# ---------------------------------------------------------------------------
+variable "public_network_access" {
+  type        = string
+  description = "Enable public network access — Enabled or Disabled."
+  default     = "Disabled"
+  validation {
+    condition     = contains(["Enabled", "Disabled"], var.public_network_access)
+    error_message = "public_network_access must be Enabled or Disabled."
+  }
+}
+
+variable "firewall_ip_rules" {
+  type        = list(string)
+  description = "CIDR ranges allowed when public_network_access = Enabled. Use [\"0.0.0.0/0\"] to allow all."
+  default     = []
+}
+
+# ---------------------------------------------------------------------------
 # Networking (private endpoint)
 # ---------------------------------------------------------------------------
 variable "subnet_id" {

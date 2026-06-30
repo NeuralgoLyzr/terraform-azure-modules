@@ -20,7 +20,7 @@ resource "azapi_resource" "redis_cluster" {
     }
     properties = {
       minimumTlsVersion   = var.minimum_tls_version
-      publicNetworkAccess = "Disabled"
+      publicNetworkAccess = var.public_network_access
     }
   }
 
